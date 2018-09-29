@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/aceto-ci/aceto-ci.iml" filepath="$PROJECT_DIR$/aceto-ci/aceto-ci.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ci-aceto.iml" filepath="$PROJECT_DIR$/.idea/modules/ci-aceto.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ci-aceto_main.iml" filepath="$PROJECT_DIR$/.idea/modules/ci-aceto_main.iml" group="ci-aceto" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ci-aceto_test.iml" filepath="$PROJECT_DIR$/.idea/modules/ci-aceto_test.iml" group="ci-aceto" />
+    </modules>
+  </component>
+</project>
