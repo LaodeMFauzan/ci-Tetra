@@ -1,0 +1,26 @@
+Use case#1:Seller submits an offer.
+Scope:MP.
+Precondition:Seller has logged in.
+SuD:MIS.
+Primary actor:Seller.
+Main scenario.
+    1 Seller submits item description.
+    2 System validates the item.
+    3 System asks Seller to input billing information.
+    4 Seller enters price and enters contact and
+      billing information.
+    5 System validates history information.
+    6 System validates the whole offer with the
+      Trade Commission.
+    7 Trade Commission gives response.
+    8 System sends authorization number to Seller.
+Extensions.
+    2a Item is not valid.
+        2a1 Use case is aborted.
+    5a History information is not valid.
+        6a1 Use case is aborted.
+    7a Trade Commission rejects the offer.
+        7a1 Use case is aborted.
+Variations.
+    2b Price assessment is available.
+        2b1 System provides assessment for price.
