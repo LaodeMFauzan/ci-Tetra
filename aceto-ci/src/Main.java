@@ -12,28 +12,42 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 public class Main {
 
-    public static void readData(String fileName,TokenizerFactory<CoreLabel> ptbTokenizerFactory,MaxentTagger tagger) throws Exception {
-        PrintWriter pw = new PrintWriter(new OutputStreamWriter(System.out,"utf-8"));
+    public static File processedByParser(String fileName,TokenizerFactory<CoreLabel> ptbTokenizerFactory,MaxentTagger tagger) throws Exception {
+        File file = new File(fileName);
+        FileOutputStream outputStream = new FileOutputStream(file);
 
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName),"utf-8"));
-
 
         DocumentPreprocessor documentPreprocessor = new DocumentPreprocessor(br);
         documentPreprocessor.setTokenizerFactory(ptbTokenizerFactory);
 
         for (List<HasWord> sentence : documentPreprocessor) {
             List<TaggedWord> tSentence = tagger.tagSentence(sentence);
-            pw.println(SentenceUtils.listToString(tSentence, false));
-
+            outputStream.write(SentenceUtils.listToString(tSentence,false).getBytes());
         }
-        pw.close();
+
+        outputStream.close();
+
+        return file;
+    }
+
+    public static List<HasWord> process(){
+        return  null;
+    }
+
+    public static String getSentence(File input){
+        return null;
+    }
+
+    public static String getActivityTable(){
+        return null;
     }
 
     public static void main(String[] args) throws Exception {
         MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
         TokenizerFactory<CoreLabel> ptbTokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(),("untokenizable=noneKeep"));
 
-        readData("data/sample-uc.txt",ptbTokenizerFactory,tagger);
+        processedByParser("data/sample-uc.txt",ptbTokenizerFactory,tagger);
 
     }
 }
