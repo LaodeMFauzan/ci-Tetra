@@ -14,7 +14,7 @@ public class Main {
 
     public static File processedByParser(String fileName,TokenizerFactory<CoreLabel> ptbTokenizerFactory,MaxentTagger tagger) throws Exception {
         File file = new File(fileName);
-        FileOutputStream outputStream = new FileOutputStream(file);
+        PrintStream ps = new PrintStream(new File("out/tagged-uc.txt"));
 
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName),"utf-8"));
 
@@ -23,19 +23,21 @@ public class Main {
 
         for (List<HasWord> sentence : documentPreprocessor) {
             List<TaggedWord> tSentence = tagger.tagSentence(sentence);
-            outputStream.write(SentenceUtils.listToString(tSentence,false).getBytes());
+            String output = SentenceUtils.listToString(tSentence,false)+"\n";
+            ps.write(output.getBytes());
         }
 
-        outputStream.close();
+        ps.close();
+        System.out.println("Tagged text has been made");
 
         return file;
     }
 
-    public static List<HasWord> process(){
-        return  null;
+    public static String getHeaderTable(){
+        return null;
     }
 
-    public static String getSentence(File input){
+    public static  String getBodyTable(){
         return null;
     }
 
