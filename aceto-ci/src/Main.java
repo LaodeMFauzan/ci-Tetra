@@ -1,9 +1,16 @@
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Scanner;
+
 import edu.stanford.nlp.ling.SentenceUtils;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.objectbank.LineIterator;
 import edu.stanford.nlp.process.CoreLabelTokenFactory;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.process.PTBTokenizer;
@@ -33,11 +40,27 @@ public class Main {
         return file;
     }
 
-    public static String getHeaderTable(){
+    public static String getHeaderTable(File file) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        int line = 0;
+
+        while(line != 5){
+            System.out.println(br.readLine());
+            line++;
+        }
+
         return null;
     }
 
-    public static  String getBodyTable(){
+    public static  String getBodyTable(File file) throws IOException {
+        Path path = Paths.get(file.getPath());
+        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+        for (int i = 0; i<lines.size(); i++){
+            if (i >= 5){
+                System.out.println(lines.get(i));
+            }
+        }
+
         return null;
     }
 
@@ -49,8 +72,10 @@ public class Main {
         MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
         TokenizerFactory<CoreLabel> ptbTokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(),("untokenizable=noneKeep"));
 
-        processedByParser("data/sample-uc.txt",ptbTokenizerFactory,tagger);
+        File taggedtext = processedByParser("data/sample-uc.txt",ptbTokenizerFactory,tagger);
 
+        //getHeaderTable(taggedtext);
+        getBodyTable(taggedtext);
     }
 }
 
