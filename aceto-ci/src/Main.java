@@ -20,8 +20,8 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 public class Main {
 
     public static File processedByParser(String fileName,TokenizerFactory<CoreLabel> ptbTokenizerFactory,MaxentTagger tagger) throws Exception {
-        File file = new File(fileName);
-        PrintStream ps = new PrintStream(new File("out/tagged-uc.txt"));
+        File output = new File("out/tagged-uc.txt");
+        PrintStream ps = new PrintStream(output);
 
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName),"utf-8"));
 
@@ -30,14 +30,14 @@ public class Main {
 
         for (List<HasWord> sentence : documentPreprocessor) {
             List<TaggedWord> tSentence = tagger.tagSentence(sentence);
-            String output = SentenceUtils.listToString(tSentence,false)+"\n";
-            ps.write(output.getBytes());
+            String outputString = SentenceUtils.listToString(tSentence,false)+"\n";
+            ps.write(outputString.getBytes());
         }
 
         ps.close();
         System.out.println("Tagged text has been made");
 
-        return file;
+        return output;
     }
 
     public static String getHeaderTable(File file) throws IOException {
