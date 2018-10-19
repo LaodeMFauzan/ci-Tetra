@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Scanner;
 
+
 import edu.stanford.nlp.ling.SentenceUtils;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.ling.HasWord;
@@ -35,21 +36,21 @@ public class Main {
         }
 
         ps.close();
-        System.out.println("Tagged text has been made");
+        //System.out.println("Tagged text has been made");
 
         return output;
     }
 
-    public static String getHeaderTable(File file) throws IOException {
+    public static String[] getHeaderTable(File file) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(file));
-        int line = 0;
+        String[] headerTable = new String[5];
 
-        while(line != 5){
-            System.out.println(br.readLine());
-            line++;
+        for(int i = 0; i < headerTable.length; i++){
+            String readLine = br.readLine();
+            headerTable[i] = readLine.substring(readLine.indexOf(":") + 1);
         }
 
-        return null;
+        return headerTable;
     }
 
     public static  String getBodyTable(File file) throws IOException {
@@ -72,10 +73,13 @@ public class Main {
         MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
         TokenizerFactory<CoreLabel> ptbTokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(),("untokenizable=noneKeep"));
 
-        File taggedtext = processedByParser("data/sample-uc.txt",ptbTokenizerFactory,tagger);
+        File input = new File("data/sample-uc.txt");
+        File taggedInput = processedByParser(input.getPath(),ptbTokenizerFactory,tagger);
 
-        //getHeaderTable(taggedtext);
-        getBodyTable(taggedtext);
+        for (String header:getHeaderTable(input)){
+            System.out.println(header);
+        }
+        //getBodyTable(taggedtext);
     }
 }
 
