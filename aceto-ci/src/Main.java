@@ -4,14 +4,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Scanner;
-
 
 import edu.stanford.nlp.ling.SentenceUtils;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.objectbank.LineIterator;
 import edu.stanford.nlp.process.CoreLabelTokenFactory;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.process.PTBTokenizer;
@@ -41,9 +38,9 @@ public class Main {
         return output;
     }
 
-    public static String[] getHeaderTable(File file) throws IOException {
+    private static String[] getHeaderTable(File file) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(file));
-        String[] headerTable = new String[5];
+        String[] headerTable = new String[5]; // header table contains 5 field
 
         for(int i = 0; i < headerTable.length; i++){
             String readLine = br.readLine();
@@ -56,12 +53,39 @@ public class Main {
     public static  String getBodyTable(File file) throws IOException {
         Path path = Paths.get(file.getPath());
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-        for (int i = 0; i<lines.size(); i++){
-            if (i >= 5){
-                System.out.println(lines.get(i));
+        String hasil = "";
+        for (int i = 5; i<lines.size(); i++){
+            if (lines.get(i).contains("abort")){
+                hasil = i+" abort";
+            } else if (lines.get(i).contains("go to step")) {
+                hasil = i +" stepj";
+            } else {
+                hasil = i + " ";
             }
         }
+        return null;
+    }
 
+    public static String getFirstVB(String line){
+
+        return null;
+    }
+
+    public static String getNN(String line){
+
+        return null;
+    }
+
+    public static String getSender(String line){
+
+        return null;
+    }
+
+    public String getReceiver(String line){
+        return null;
+    }
+
+    public static String getACondition(String line){
         return null;
     }
 
@@ -76,9 +100,9 @@ public class Main {
         File input = new File("data/sample-uc.txt");
         File taggedInput = processedByParser(input.getPath(),ptbTokenizerFactory,tagger);
 
-        for (String header:getHeaderTable(input)){
-            System.out.println(header);
-        }
+//        for (String header:getHeaderTable(input)){
+//            System.out.println(header);
+//        }
         //getBodyTable(taggedtext);
     }
 }
