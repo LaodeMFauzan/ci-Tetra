@@ -50,31 +50,38 @@ public class Main {
         return headerTable;
     }
 
-    public static  String getBodyTable(File file) throws IOException {
+    public static String[] getBodyTable(File file) throws IOException {
         Path path = Paths.get(file.getPath());
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-        String hasil = "";
+        String hasil[] = new String[lines.size()];
         for (int i = 5; i<lines.size(); i++){
             if (lines.get(i).contains("abort")){
-                hasil = i+" abort";
+                hasil[i-5] = i+" abort";
             } else if (lines.get(i).contains("go to step")) {
-                hasil = i +" stepj";
+                hasil[i-5] = i +" stepj";
             } else {
-                hasil = i + " ";
+                String vb = getBetween(lines.get(i)," ","'\'VBZ");
+                String nn = getBetween(lines.get(i)," ","'\'NNP");
             }
         }
-        return null;
+        return hasil;
     }
 
-    public static String getFirstVB(String line){
-
-        return null;
-    }
-
-    public static String getNN(String line){
-
-        return null;
-    }
+   public static String getBetween(String line,String a,String b){
+        int posA = line.indexOf(a);
+       if (posA == -1) {
+           return "";
+       }
+       int posB = line.lastIndexOf(b);
+       if (posB == -1) {
+           return "";
+       }
+       int adjustedPosA = posA + a.length();
+       if (adjustedPosA >= posB) {
+           return "";
+       }
+       return line.substring(adjustedPosA, posB);
+   }
 
     public static String getSender(String line){
 
@@ -100,10 +107,8 @@ public class Main {
         File input = new File("data/sample-uc.txt");
         File taggedInput = processedByParser(input.getPath(),ptbTokenizerFactory,tagger);
 
-//        for (String header:getHeaderTable(input)){
-//            System.out.println(header);
-//        }
-        //getBodyTable(taggedtext);
+
+        getBodyTable(taggedInput);
     }
 }
 
