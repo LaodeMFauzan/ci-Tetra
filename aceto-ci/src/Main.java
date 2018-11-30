@@ -53,34 +53,36 @@ public class Main {
     public static String[] getBodyTable(File file) throws IOException {
         Path path = Paths.get(file.getPath());
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-        String hasil[] = new String[lines.size()];
-        for (int i = 5; i<lines.size(); i++){
-            if (lines.get(i).contains("abort")){
-                hasil[i-5] = i+" abort";
-            } else if (lines.get(i).contains("go to step")) {
-                hasil[i-5] = i +" stepj";
-            } else {
-                String vb = getBetween(lines.get(i)," ","'\'VBZ");
-                String nn = getBetween(lines.get(i)," ","'\'NNP");
+        String hasil[] = new String[lines.size()]; // Ganti hasil jadi arrayList saja
+        boolean isMainScenario = false;
+        for (int i = 0; i < lines.size(); i++){ // Ganti loop ini jadi while
+            if(lines.get(i).contains("Main") || lines.get(i).contains("Extensions") || lines.get(i).contains("Variations")  ){
+                isMainScenario = true;
+                continue;
+            }
+            if (isMainScenario){
+                if (lines.get(i).contains("abort")){
+                    hasil[i] = i+" abort";
+                } else if (lines.get(i).contains("go to step")) {
+                    hasil[i] = i +" stepj";
+                } else {
+                    String vb = getVBZ(lines.get(i));
+                    System.out.println(vb);
+                }
             }
         }
         return hasil;
     }
 
-   public static String getBetween(String line,String a,String b){
-        int posA = line.indexOf(a);
-       if (posA == -1) {
-           return "";
-       }
-       int posB = line.lastIndexOf(b);
-       if (posB == -1) {
-           return "";
-       }
-       int adjustedPosA = posA + a.length();
-       if (adjustedPosA >= posB) {
-           return "";
-       }
-       return line.substring(adjustedPosA, posB);
+   public static String getVBZ(String line){
+        String result[] = line.split(" ");
+        for (int i = 0; i < result.length; i++){
+            if (result[i].contains("/VBZ")){
+                result[i] = result[i].split("/")[0];
+                return result[i];
+            }
+        }
+        return null;
    }
 
     public static String getSender(String line){
@@ -107,8 +109,15 @@ public class Main {
         File input = new File("data/sample-uc.txt");
         File taggedInput = processedByParser(input.getPath(),ptbTokenizerFactory,tagger);
 
-
-        getBodyTable(taggedInput);
+//        Path path = Paths.get(taggedInput.getPath());
+//        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+//        for(int i = 0; i < lines.size(); i++){
+//            System.out.println(lines.get(i));
+//        }
+        String[] hasil = getBodyTable(taggedInput);
+        for (String print:hasil){
+            System.out.println(print);
+        }
     }
 }
 
