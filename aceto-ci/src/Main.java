@@ -3,7 +3,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import edu.stanford.nlp.ling.SentenceUtils;
 import edu.stanford.nlp.ling.TaggedWord;
@@ -50,24 +53,37 @@ public class Main {
         return headerTable;
     }
 
-    public static String[] getBodyTable(File file) throws IOException {
+    public static ArrayList<String> getBodyTable(File file) throws IOException {
         Path path = Paths.get(file.getPath());
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-        String hasil[] = new String[lines.size()]; // Ganti hasil jadi arrayList saja
+        ArrayList<String> hasil = new ArrayList<>(); // Ganti hasil jadi arrayList saja
         boolean isMainScenario = false;
+        boolean isExtension = false;
         for (int i = 0; i < lines.size(); i++){ // Ganti loop ini jadi while
-            if(lines.get(i).contains("Main") || lines.get(i).contains("Extensions") || lines.get(i).contains("Variations")  ){
+            if(lines.get(i).contains("Main") || lines.get(i).contains("Variations")  ){
                 isMainScenario = true;
                 continue;
             }
+            if(lines.get(i).contains("Extensions") ){
+                isExtension = true;
+            }
+            String regExNumberLetter = "\\d[a-zA-Z](\\d)";
+            Pattern pattern = Pattern.compile(regExNumberLetter);
+            Matcher matcher = pattern.matcher(lines.get(i));
+
+            if (!matcher.find() && isExtension){
+                continue;
+            }
+
             if (isMainScenario){
                 if (lines.get(i).contains("abort")){
-                    hasil[i] = i+" abort";
+                    hasil.add("abort");
                 } else if (lines.get(i).contains("go to step")) {
-                    hasil[i] = i +" stepj";
+                    hasil.add("stepj");
                 } else {
                     String vb = getVBZ(lines.get(i));
-                    System.out.println(vb);
+                    String sender = getSender(lines.get(i));
+                    hasil.add(vb+" "+sender);
                 }
             }
         }
@@ -86,8 +102,8 @@ public class Main {
    }
 
     public static String getSender(String line){
-
-        return null;
+        String result[] = line.split(" ");
+        return result[1].split("/")[0];
     }
 
     public String getReceiver(String line){
@@ -114,7 +130,7 @@ public class Main {
 //        for(int i = 0; i < lines.size(); i++){
 //            System.out.println(lines.get(i));
 //        }
-        String[] hasil = getBodyTable(taggedInput);
+        ArrayList<String> hasil = getBodyTable(taggedInput);
         for (String print:hasil){
             System.out.println(print);
         }
