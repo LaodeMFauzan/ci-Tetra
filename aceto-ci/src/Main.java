@@ -53,41 +53,62 @@ public class Main {
         return headerTable;
     }
 
-    public static ArrayList<String> getBodyTable(File file) throws IOException {
+    public static ArrayList<String> getActivityTable(File file) throws IOException {
         Path path = Paths.get(file.getPath());
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-        ArrayList<String> hasil = new ArrayList<>(); // Ganti hasil jadi arrayList saja
+        ArrayList<String> hasil = new ArrayList<>();
         boolean isMainScenario = false;
         boolean isExtension = false;
-        for (int i = 0; i < lines.size(); i++){ // Ganti loop ini jadi while
-            if(lines.get(i).contains("Main") || lines.get(i).contains("Variations")  ){
+        boolean isVariation = false;
+        for (int i = 0; i < lines.size(); i++){ // Ganti loop ini jadi while TODO: Change this loop to while
+            if(lines.get(i).contains("Main") ){
                 isMainScenario = true;
                 continue;
             }
-            if(lines.get(i).contains("Extensions") ){
+            else if(lines.get(i).contains("Extensions") ){
                 isExtension = true;
+                isMainScenario = false;
             }
-            String regExNumberLetter = "\\d[a-zA-Z](\\d)";
-            Pattern pattern = Pattern.compile(regExNumberLetter);
+            else if(lines.get(i).contains("Variations")){
+                isVariation = true;
+                isExtension = false;
+            }
+            String getNumberLetterFormat = "\\d[a-zA-Z](\\d)"; // Get the number letter format in variation and extension
+            Pattern pattern = Pattern.compile(getNumberLetterFormat);
             Matcher matcher = pattern.matcher(lines.get(i));
 
-            if (!matcher.find() && isExtension){
+            if (!matcher.find() && (isExtension || isVariation)){
                 continue;
             }
 
-            if (isMainScenario){
+            String number= getNumber(i,lines.get(i),isMainScenario);
+
+
                 if (lines.get(i).contains("abort")){
-                    hasil.add("abort");
+                    hasil.add(number+" abort");
                 } else if (lines.get(i).contains("go to step")) {
-                    hasil.add("stepj");
+                    hasil.add(number+" stepj");
                 } else {
                     String vb = getVBZ(lines.get(i));
+                    String nn = getNN(lines.get(i));
                     String sender = getSender(lines.get(i));
-                    hasil.add(vb+" "+sender);
+                    String receiver = getReceiver(lines.get(i));
+                    String aCondition = getACondition(lines.get(i));
+                    hasil.add(number+" "+vb+" "+nn+" "+sender+" "+receiver+" "+aCondition);
                 }
             }
-        }
+
         return hasil;
+    }
+
+    private static String getNumber(int i,String line,boolean isMainScenario){
+        if (isMainScenario){
+            int hasil = i-5;
+            return String.valueOf(hasil);
+        } else {
+            String result[] = line.split(" ");
+            return result[0].split("/")[0];
+        }
     }
 
    public static String getVBZ(String line){
@@ -101,12 +122,16 @@ public class Main {
         return null;
    }
 
+    public static String getNN(String line){
+        return null;
+    }
+
     public static String getSender(String line){
         String result[] = line.split(" ");
         return result[1].split("/")[0];
     }
 
-    public String getReceiver(String line){
+    public static String getReceiver(String line){
         return null;
     }
 
@@ -130,7 +155,7 @@ public class Main {
 //        for(int i = 0; i < lines.size(); i++){
 //            System.out.println(lines.get(i));
 //        }
-        ArrayList<String> hasil = getBodyTable(taggedInput);
+        ArrayList<String> hasil = getActivityTable(taggedInput);
         for (String print:hasil){
             System.out.println(print);
         }
