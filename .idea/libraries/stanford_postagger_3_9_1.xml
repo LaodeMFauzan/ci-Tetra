@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="stanford-postagger-3.9.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/Compressed/StandfordNLP/stanford-postagger-2018-02-27/stanford-postagger-3.9.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,24 @@
+Use/NNP case/NN #/# 1/CD :/: Seller/NNP submits/VBZ an/DT offer/NN ./.
+Scope/NN :/: MP/NN ./.
+Precondition/NN :/: Seller/NNP has/VBZ logged/VBN in/IN ./.
+SuD/NNP :/: MIS/NNP ./.
+Primary/JJ actor/NN :/: Seller/NNP ./.
+Main/NNP scenario/NN ./.
+1/CD Seller/NN submits/VBZ item/NN description/NN ./.
+2/CD System/NNP validates/VBZ the/DT item/NN ./.
+3/CD System/NNP asks/VBZ Seller/NNP to/TO input/NN billing/NN information/NN ./.
+4/LS Seller/NN enters/VBZ price/NN and/CC enters/VBZ contact/NN and/CC billing/NN information/NN ./.
+5/CD System/NNP validates/VBZ history/NN information/NN ./.
+6/CD System/NNP validates/VBZ the/DT whole/JJ offer/NN with/IN the/DT Trade/NNP Commission/NNP ./.
+7/CD Trade/NNP Commission/NNP gives/VBZ response/NN ./.
+8/CD System/NNP sends/VBZ authorization/NN number/NN to/TO Seller/NNP ./.
+Extensions/NNS ./.
+2a/JJ Item/NN is/VBZ not/RB valid/JJ ./.
+2a1/NN Use/NN case/NN is/VBZ aborted/VBN ./.
+5a/NN History/NN information/NN is/VBZ not/RB valid/JJ ./.
+6a1/NN Use/NN case/NN is/VBZ aborted/VBN ./.
+7a/NN Trade/NNP Commission/NNP rejects/VBZ the/DT offer/NN ./.
+7a1/NN Use/NN case/NN is/VBZ aborted/VBN ./.
+Variations/NNS ./.
+2b/JJ Price/NN assessment/NN is/VBZ available/JJ ./.
+2b1/NN System/NN provides/VBZ assessment/NN for/IN price/NN ./.

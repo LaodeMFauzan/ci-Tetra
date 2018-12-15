@@ -60,7 +60,7 @@ public class Main {
         boolean isMainScenario = false;
         boolean isExtension = false;
         boolean isVariation = false;
-        for (int i = 0; i < lines.size(); i++){ // Ganti loop ini jadi while TODO: Change this loop to while
+        for (int i = 5; i < lines.size(); i++){ // Ganti loop ini jadi while TODO: Change this loop to while
             if(lines.get(i).contains("Main") ){
                 isMainScenario = true;
                 continue;
@@ -83,20 +83,19 @@ public class Main {
 
             String number= getNumber(i,lines.get(i),isMainScenario);
 
-
-                if (lines.get(i).contains("abort")){
-                    hasil.add(number+" abort");
-                } else if (lines.get(i).contains("go to step")) {
-                    hasil.add(number+" stepj");
-                } else {
-                    String vb = getVBZ(lines.get(i));
-                    String nn = getNN(lines.get(i));
-                    String sender = getSender(lines.get(i));
-                    String receiver = getReceiver(lines.get(i));
-                    String aCondition = getACondition(lines.get(i));
-                    hasil.add(number+" "+vb+" "+nn+" "+sender+" "+receiver+" "+aCondition);
-                }
+            if (lines.get(i).contains("abort")){
+                hasil.add(number+" abort");
+            } else if (lines.get(i).contains("go to step")) {
+                hasil.add(number+" stepj");
+            } else {
+                String vb = getVBZ(lines.get(i));
+                String nn = getNN(lines.get(i));
+                String sender = getSender(lines.get(i));
+                String receiver = getReceiver(lines.get(i));
+                String aCondition = getACondition(lines.get(i));
+                hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" "+aCondition);
             }
+        }
 
         return hasil;
     }
@@ -111,37 +110,53 @@ public class Main {
         }
     }
 
-   public static String getVBZ(String line){
+   private static String getVBZ(String line){
         String result[] = line.split(" ");
         for (int i = 0; i < result.length; i++){
             if (result[i].contains("/VBZ")){
-                result[i] = result[i].split("/")[0];
-                return result[i];
+                return result[i].split("/")[0];
             }
         }
         return null;
    }
 
-    public static String getNN(String line){
+    private static String getNN(String line){
+        String result[] = line.split(" ");
+        boolean isGetVerb = false;
+        for(int i = 0; i < result.length; i++){
+            if (result[i].contains("/VBZ")){ //Get the noun after verb found
+               isGetVerb = true;
+            } else if(isGetVerb && !result[i].contains("NNP") && result[i].contains("/NN")){
+                String firstChar = result[i].substring(0, 1).toUpperCase(); //Capitalize first letter to make it camelCase
+                return firstChar+result[i].substring(1).split("/")[0];
+            }
+        }
         return null;
     }
 
-    public static String getSender(String line){
+    private static String getSender(String line){
         String result[] = line.split(" ");
         return result[1].split("/")[0];
     }
 
-    public static String getReceiver(String line){
+    private static String getReceiver(String line){
+        String result[] = line.split(" ");
+        for (int i = 2; i < result.length; i++){ // first and second word are mostly fixed,so we go to 3 word
+            if (result[i].contains("submit") || result[i].contains("enter")){
+                return "System";
+            } else if(result[i].contains("ask") || result[i].contains("provide")) {
+                return "Seller";
+            } else {
+
+            }
+        }
         return null;
     }
 
-    public static String getACondition(String line){
+    private static String getACondition(String line){
         return null;
     }
 
-    public static String getActivityTable(){
-        return null;
-    }
 
     public static void main(String[] args) throws Exception {
         MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
