@@ -1,3 +1,13 @@
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.HasWord;
+import edu.stanford.nlp.ling.SentenceUtils;
+import edu.stanford.nlp.ling.TaggedWord;
+import edu.stanford.nlp.process.CoreLabelTokenFactory;
+import edu.stanford.nlp.process.DocumentPreprocessor;
+import edu.stanford.nlp.process.PTBTokenizer;
+import edu.stanford.nlp.process.TokenizerFactory;
+import edu.stanford.nlp.tagger.maxent.MaxentTagger;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -8,17 +18,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.stanford.nlp.ling.SentenceUtils;
-import edu.stanford.nlp.ling.TaggedWord;
-import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.process.CoreLabelTokenFactory;
-import edu.stanford.nlp.process.DocumentPreprocessor;
-import edu.stanford.nlp.process.PTBTokenizer;
-import edu.stanford.nlp.process.TokenizerFactory;
-import edu.stanford.nlp.tagger.maxent.MaxentTagger;
-
 public class Main {
+
+    public static ArrayList<String> aCondition = new ArrayList<>();
 
     public static File processedByParser(String fileName,TokenizerFactory<CoreLabel> ptbTokenizerFactory,MaxentTagger tagger) throws Exception {
         File output = new File("out/tagged-uc.txt");
@@ -48,6 +50,9 @@ public class Main {
         for(int i = 0; i < headerTable.length; i++){
             String readLine = br.readLine();
             headerTable[i] = readLine.substring(readLine.indexOf(":") + 1);
+            if (i == 2){
+                aCondition.add(headerTable[i]);
+            }
         }
 
         return headerTable;
@@ -73,7 +78,7 @@ public class Main {
                 isVariation = true;
                 isExtension = false;
             }
-            String getNumberLetterFormat = "\\d[a-zA-Z](\\d)"; // Get the number letter format in variation and extension
+            String getNumberLetterFormat = "\\d[a-zA-Z](\\d)"; // Get the number letter number format in variation and extension
             Pattern pattern = Pattern.compile(getNumberLetterFormat);
             Matcher matcher = pattern.matcher(lines.get(i));
 
@@ -92,8 +97,7 @@ public class Main {
                 String nn = getNN(lines.get(i));
                 String sender = getSender(lines.get(i));
                 String receiver = getReceiver(lines.get(i));
-                String aCondition = getACondition(lines.get(i));
-                hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" "+aCondition);
+                hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" ");
             }
         }
 
@@ -141,20 +145,43 @@ public class Main {
 
     private static String getReceiver(String line){
         String result[] = line.split(" ");
-        for (int i = 2; i < result.length; i++){ // first and second word are mostly fixed,so we go to 3 word
-            if (result[i].contains("submit") || result[i].contains("enter")){
+        int countNNP = 0;
+        for (int i = 2; i < result.length; i++){ // first and second word are always number and sender,so we go to 3rd word
+            if(result[i].contains("NNP") && i != 2){ //Special case for sender with two NNP
+                countNNP++;
+            }
+            if (result[i].contains("submit") || result[i].contains("enter") || result[i].contains("gives")){
                 return "System";
-            } else if(result[i].contains("ask") || result[i].contains("provide")) {
+            } else if(result[i].contains("ask") || result[i].contains("provide") ) {
                 return "Seller";
-            } else {
-
+            } else if(countNNP > 0) {
+                return result[i].split("/")[0];
             }
         }
         return null;
     }
 
-    private static String getACondition(String line){
-        return null;
+    private static void getACondition(File file) throws IOException {
+        Path path = Paths.get(file.getPath());
+        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+        boolean isExtOrVar = false;
+        for(int i = 5; i < lines.size(); i++){
+            if (lines.get(i).contains("Extensions")){
+                isExtOrVar = true;
+            } else if(isExtOrVar){
+                String getNumberLetterFormat = "\\d[a-zA-Z]"; // Get the number letter format in variation and extension
+                Pattern pattern = Pattern.compile(getNumberLetterFormat);
+                Matcher matcher = pattern.matcher(lines.get(i));
+
+                String getNumberLetterNumberFormat = "\\d[a-zA-Z](\\d)";
+                Pattern patternCheck = Pattern.compile(getNumberLetterNumberFormat);
+                Matcher matcherCheck = patternCheck.matcher(lines.get(i));
+
+                if(matcher.find() && !matcherCheck.find()){
+                    aCondition.add(lines.get(i).split(getNumberLetterFormat)[1]);
+                }
+            }
+        }
     }
 
 
@@ -170,6 +197,8 @@ public class Main {
 //        for(int i = 0; i < lines.size(); i++){
 //            System.out.println(lines.get(i));
 //        }
+        getHeaderTable(input);
+        getACondition(input);
         ArrayList<String> hasil = getActivityTable(taggedInput);
         for (String print:hasil){
             System.out.println(print);
