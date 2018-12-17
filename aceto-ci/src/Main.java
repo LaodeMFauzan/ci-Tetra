@@ -65,6 +65,7 @@ public class Main {
         boolean isMainScenario = false;
         boolean isExtension = false;
         boolean isVariation = false;
+        int countACond = 1;
         for (int i = 5; i < lines.size(); i++){ // Ganti loop ini jadi while TODO: Change this loop to while
             if(lines.get(i).contains("Main") ){
                 isMainScenario = true;
@@ -89,7 +90,8 @@ public class Main {
             String number= getNumber(i,lines.get(i),isMainScenario);
 
             if (lines.get(i).contains("abort")){
-                hasil.add(number+" abort");
+                hasil.add(number+" abort "+aCondition.get(countACond));
+                countACond++;
             } else if (lines.get(i).contains("go to step")) {
                 hasil.add(number+" stepj");
             } else {
@@ -97,7 +99,11 @@ public class Main {
                 String nn = getNN(lines.get(i));
                 String sender = getSender(lines.get(i));
                 String receiver = getReceiver(lines.get(i));
-                hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" ");
+                if(isVariation){
+                    hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" "+aCondition.get(countACond));
+                }
+                else
+                    hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" ");
             }
         }
 
