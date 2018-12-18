@@ -90,7 +90,7 @@ public class Main {
             String number= getNumber(i,lines.get(i),isMainScenario);
 
             if (lines.get(i).contains("abort")){
-                hasil.add(number+" abort "+aCondition.get(countACond));
+                hasil.add(number+" abort "+null+" "+null+" "+aCondition.get(countACond));
                 countACond++;
             } else if (lines.get(i).contains("go to step")) {
                 hasil.add(number+" stepj");
@@ -103,7 +103,7 @@ public class Main {
                     hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" "+aCondition.get(countACond));
                 }
                 else
-                    hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" ");
+                    hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" "+null);
             }
         }
 
