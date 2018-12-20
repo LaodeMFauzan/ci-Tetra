@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,45 +67,51 @@ public class Main {
         boolean isExtension = false;
         boolean isVariation = false;
         int countACond = 1;
-        for (int i = 5; i < lines.size(); i++){ // Ganti loop ini jadi while TODO: Change this loop to while
-            if(lines.get(i).contains("Main") ){
+        int linesScanned = 5;
+
+        //TODO: Change this loop to while
+        while(linesScanned < lines.size()){
+            if(lines.get(linesScanned).contains("Main") ){
                 isMainScenario = true;
+                linesScanned++;
                 continue;
             }
-            else if(lines.get(i).contains("Extensions") ){
+            else if(lines.get(linesScanned).contains("Extensions") ){
                 isExtension = true;
                 isMainScenario = false;
             }
-            else if(lines.get(i).contains("Variations")){
+            else if(lines.get(linesScanned).contains("Variations")){
                 isVariation = true;
                 isExtension = false;
             }
             String getNumberLetterFormat = "\\d[a-zA-Z](\\d)"; // Get the number letter number format in variation and extension
             Pattern pattern = Pattern.compile(getNumberLetterFormat);
-            Matcher matcher = pattern.matcher(lines.get(i));
+            Matcher matcher = pattern.matcher(lines.get(linesScanned));
 
             if (!matcher.find() && (isExtension || isVariation)){
+                linesScanned++;
                 continue;
             }
 
-            String number= getNumber(i,lines.get(i),isMainScenario);
+            String number= getNumber(linesScanned,lines.get(linesScanned),isMainScenario);
 
-            if (lines.get(i).contains("abort")){
+            if (lines.get(linesScanned).contains("abort")){
                 hasil.add(number+" abort "+null+" "+null+" "+aCondition.get(countACond));
                 countACond++;
-            } else if (lines.get(i).contains("go to step")) {
+            } else if (lines.get(linesScanned).contains("go to step")) {
                 hasil.add(number+" stepj");
             } else {
-                String vb = getVBZ(lines.get(i));
-                String nn = getNN(lines.get(i));
-                String sender = getSender(lines.get(i));
-                String receiver = getReceiver(lines.get(i));
+                String vb = getVBZ(lines.get(linesScanned));
+                String nn = getNN(lines.get(linesScanned));
+                String sender = getSender(lines.get(linesScanned));
+                String receiver = getReceiver(lines.get(linesScanned));
                 if(isVariation){
                     hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" "+aCondition.get(countACond));
                 }
                 else
                     hasil.add(number+" "+vb+nn+" "+sender+" "+receiver+" "+null);
             }
+            linesScanned++;
         }
 
         return hasil;
@@ -171,6 +178,7 @@ public class Main {
         Path path = Paths.get(file.getPath());
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
         boolean isExtOrVar = false;
+        int countACond = 1;
         for(int i = 5; i < lines.size(); i++){
             if (lines.get(i).contains("Extensions")){
                 isExtOrVar = true;
@@ -184,12 +192,12 @@ public class Main {
                 Matcher matcherCheck = patternCheck.matcher(lines.get(i));
 
                 if(matcher.find() && !matcherCheck.find()){
-                    aCondition.add(lines.get(i).split(getNumberLetterFormat)[1]);
+                    aCondition.add("cond"+countACond+"/"+lines.get(i).split(getNumberLetterFormat)[1]);
+                    countACond++;
                 }
             }
         }
     }
-
 
     public static void main(String[] args) throws Exception {
         MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
@@ -203,9 +211,12 @@ public class Main {
 //        for(int i = 0; i < lines.size(); i++){
 //            System.out.println(lines.get(i));
 //        }
-        getHeaderTable(input);
+        String[] headerTable = getHeaderTable(input);
         getACondition(input);
-        ArrayList<String> hasil = getActivityTable(taggedInput);
+        ArrayList<String> hasil = new ArrayList<>();
+        hasil.addAll(Arrays.asList(headerTable));
+        hasil.addAll(getActivityTable(taggedInput));
+
         for (String print:hasil){
             System.out.println(print);
         }
