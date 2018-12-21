@@ -199,27 +199,34 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    private static void printToText(File input) throws Exception {
         MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
         TokenizerFactory<CoreLabel> ptbTokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(),("untokenizable=noneKeep"));
-
-        File input = new File("data/sample-uc.txt");
         File taggedInput = processedByParser(input.getPath(),ptbTokenizerFactory,tagger);
-
-//        Path path = Paths.get(taggedInput.getPath());
-//        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-//        for(int i = 0; i < lines.size(); i++){
-//            System.out.println(lines.get(i));
-//        }
         String[] headerTable = getHeaderTable(input);
         getACondition(input);
         ArrayList<String> hasil = new ArrayList<>();
         hasil.addAll(Arrays.asList(headerTable));
         hasil.addAll(getActivityTable(taggedInput));
 
+        PrintWriter writer = new PrintWriter("out/activity-table.txt", "UTF-8");
         for (String print:hasil){
+            writer.println(print);
             System.out.println(print);
         }
+        writer.close();
+    }
+
+    public static void main(String[] args) throws Exception {
+        File input = new File("data/sample-uc.txt");
+
+//        Path path = Paths.get(taggedInput.getPath());
+//        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+//        for(int i = 0; i < lines.size(); i++){
+//            System.out.println(lines.get(i));
+//        }
+
+        printToText(input);
     }
 }
 
