@@ -128,7 +128,7 @@ public class Main {
     }
 
    private static String getVBZ(String line){
-        String result[] = line.split(" ");
+        String[] result = line.split(" ");
         for (int i = 0; i < result.length; i++){
             if (result[i].contains("/VBZ")){
                 return result[i].split("/")[0];
@@ -138,7 +138,7 @@ public class Main {
    }
 
     private static String getNN(String line){
-        String result[] = line.split(" ");
+        String[] result = line.split(" ");
         boolean isGetVerb = false;
         for(int i = 0; i < result.length; i++){
             if (result[i].contains("/VBZ")){ //Get the noun after verb found
@@ -152,12 +152,12 @@ public class Main {
     }
 
     private static String getSender(String line){
-        String result[] = line.split(" ");
+        String[] result = line.split(" ");
         return result[1].split("/")[0];
     }
 
     private static String getReceiver(String line){
-        String result[] = line.split(" ");
+        String[] result = line.split(" ");
         int countNNP = 0;
         for (int i = 2; i < result.length; i++){ // first and second word are always number and sender,so we go to 3rd word
             if(result[i].contains("NNP") && i != 2){ //Special case for sender with two NNP
