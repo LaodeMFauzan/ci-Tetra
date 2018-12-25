@@ -1,4 +1,4 @@
-package efsm.tuple.state;
+package efsm.state;
 
 public interface EFSMState {
     public String getName();

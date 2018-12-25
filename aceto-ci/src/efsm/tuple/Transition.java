@@ -1,6 +1,6 @@
 package efsm.tuple;
 
-import efsm.tuple.state.State;
+import efsm.state.State;
 
 public class Transition {
     private State sourceState;

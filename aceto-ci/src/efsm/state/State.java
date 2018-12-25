@@ -1,4 +1,4 @@
-package efsm.tuple.state;
+package efsm.state;
 
 public class State implements EFSMState {
     private String name;
