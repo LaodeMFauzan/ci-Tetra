@@ -8,10 +8,10 @@ package efsm.model;
 
 public interface FSMConcept {
 
-    public String getId();
+    String getId();
 
-    public Object getProperty(String property);
+    Object getProperty(String property);
 
-    public void addProperty(String name,Object value);
+    void addProperty(String name,Object value);
 
 }

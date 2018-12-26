@@ -8,9 +8,9 @@ package efsm.model;
 
 public interface FSMState {
 
-    public String getName();
+    String getName();
 
-    public void onEntry(FSMConcept concept, FSMEvent event);
+    void onEntry(FSMConcept concept, FSMEvent event);
 
-    public void onExit(FSMConcept concept, FSMEvent event);
+    void onExit(FSMConcept concept, FSMEvent event);
 }

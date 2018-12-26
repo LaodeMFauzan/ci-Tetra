@@ -8,7 +8,7 @@ package efsm.model;
 
 public interface FSMEvent<T> {
 
-    public T getSource();
+    T getSource();
 
-    public String getType();
+    String getType();
 }
