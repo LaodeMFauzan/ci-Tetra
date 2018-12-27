@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Main {
+public class ActivityTableBuilder {
 
     public static ArrayList<String> aCondition = new ArrayList<>();
 

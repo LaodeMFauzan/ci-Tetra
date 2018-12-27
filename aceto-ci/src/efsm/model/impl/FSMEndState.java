@@ -14,7 +14,7 @@ public final class FSMEndState extends AbstractFSMState {
 
 
     public FSMEndState() {
-        super("_END_STATE_");
+        super("_End_State_");
     }
 
     @Override

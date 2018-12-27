@@ -1,5 +1,10 @@
 package efsm;
 
+import efsm.model.FSMState;
+import efsm.model.FSMTransition;
+import efsm.model.impl.FSMEndState;
+import efsm.model.impl.FSMStartState;
+
 /**
  * Created by Intellij IDEA
  * User : fauzan
@@ -7,4 +12,18 @@ package efsm;
  */
 
 public interface FSMStateMachine {
+
+    FSMStartState getStartState();
+
+    FSMEndState getEndState();
+
+    <S extends FSMState> FSMStateMachine addState(S state);
+
+    <S extends FSMState> FSMStateMachine addStates(S... states);
+
+    <T extends FSMTransition> FSMStateMachine addOutGoingTransition(T transition);
+
+    <T extends FSMTransition> FSMStateMachine addOutGoingTransitions(T... transitions);
+
+    FSMState getCurrentState();
 }
