@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -203,10 +202,13 @@ public class ActivityTableBuilder {
         MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
         TokenizerFactory<CoreLabel> ptbTokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(),("untokenizable=noneKeep"));
         File taggedInput = processedByParser(input.getPath(),ptbTokenizerFactory,tagger);
-        String[] headerTable = getHeaderTable(input);
-        getACondition(input);
         ArrayList<String> hasil = new ArrayList<>();
-        hasil.addAll(Arrays.asList(headerTable));
+
+        /* Do we really need to construct the header table ? */
+        String[] headerTable = getHeaderTable(input);
+        //hasil.addAll(Arrays.asList(headerTable));
+
+        getACondition(input);
         hasil.addAll(getActivityTable(taggedInput));
 
         PrintWriter writer = new PrintWriter("out/activity-table.txt", "UTF-8");
