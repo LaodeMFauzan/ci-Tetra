@@ -11,8 +11,8 @@ import efsm.model.FSMTransition;
 
 public class EFSMTransition implements FSMTransition {
 
-    private FSMState sourceState;
-    private FSMState destinationState;
+    private EFSMState sourceState;
+    private EFSMState destinationState;
     private Class<?> triggerClassEvent;
 
     //Extension of FSM
@@ -23,12 +23,12 @@ public class EFSMTransition implements FSMTransition {
     public EFSMTransition() {
     }
 
-    public EFSMTransition(FSMState sourceState, FSMState destinationState) {
+    public EFSMTransition(EFSMState sourceState, EFSMState destinationState) {
         this.sourceState = sourceState;
         this.destinationState = destinationState;
     }
 
-    public EFSMTransition(FSMState sourceState, FSMState destinationState, String actionName, String predicateKey, String blockName) {
+    public EFSMTransition(EFSMState sourceState, EFSMState destinationState, String actionName, String predicateKey, String blockName) {
         this.sourceState = sourceState;
         this.destinationState = destinationState;
         this.actionName = actionName;
