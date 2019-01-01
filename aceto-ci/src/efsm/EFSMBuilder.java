@@ -70,11 +70,12 @@ public class EFSMBuilder {
             }
 
             //Predicate set
-            String isHavePredicate = lines.get(i).split(" ")[4];
-            if(!isHavePredicate.equals("null")){
-                predicatesSet.add(isHavePredicate.substring(0,isHavePredicate.length()-1));
+            String getPredicate = lines.get(i).split(" ")[4];
+            if(!getPredicate.equals("null")){
+                predicatesSet.add(getPredicate.substring(0,getPredicate.length()-1));
             }
-            constructTransition(lines.get(i),efsmState,previousState);
+
+            constructTransition(lines.get(i),isInput,!getPredicate.equals("null"),efsmState,previousState);
             //Get the previous state
             previousState = efsmState;
 
@@ -82,9 +83,23 @@ public class EFSMBuilder {
         }
     }
 
-    private void constructTransition(String line, EFSMState currentState,EFSMState previousState){
+    private void constructTransition(String line,boolean isInput,boolean isHavePredicate, EFSMState currentState,EFSMState previousState){
         EFSMTransition transition = new EFSMTransition(previousState,currentState);
-        transition.setActionName(line);
+        String[] splittedLine = line.split(" ");
+        if(isInput){
+            transition.setActionName(splittedLine[1]);
+            transition.setBlockName(null);
+        } else {
+            transition.setActionName(null);
+            transition.setBlockName(splittedLine[1]);
+        }
+
+        if (isHavePredicate){
+            transition.setPredicateKey(splittedLine[4]);
+        } else {
+            transition.setPredicateKey(null);
+        }
+        transitionsSet.add(transition);
     }
 
     public static void main(String[] args) throws IOException {
