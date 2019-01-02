@@ -37,6 +37,7 @@ public class EFSMBuilder {
 
         //Precondition for every use case
         predicatesSet.add("cond0");
+        //stateSet.add(new EFSMState("Start_State"));
     }
 
     private  void setupEFSM(File file) throws IOException {
@@ -48,12 +49,21 @@ public class EFSMBuilder {
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
 
         EFSMState previousState = null;
+        String getPredicate = null;
         int sequenceChar = 65;
         //COMPLETED(1) : read every line and get state of the efsm
         for(int i = 0; i < lines.size(); i++){
             if (i == 0){
                 // get the start state -- think about it
+                previousState = new EFSMState("Start_State");
+                getPredicate = "cond0";
+            } else {
+                getPredicate = lines.get(i).split(" ")[4];
+
+                if (!getPredicate.equals("null"))
+                    getPredicate =  getPredicate.substring(0,getPredicate.length()-1);
             }
+
             // Use the alphabet to name a state
             char stateName = (char) sequenceChar;
             EFSMState efsmState = new EFSMState(String.valueOf(stateName));
@@ -70,20 +80,17 @@ public class EFSMBuilder {
             }
 
             //Predicate set
-            String getPredicate = lines.get(i).split(" ")[4];
-            if(!getPredicate.equals("null")){
-                predicatesSet.add(getPredicate.substring(0,getPredicate.length()-1));
-            }
+            predicatesSet.add(getPredicate);
 
-            constructTransition(lines.get(i),isInput,!getPredicate.equals("null"),efsmState,previousState);
+            constructTransition(lines.get(i),isInput,getPredicate,efsmState,previousState);
+
             //Get the previous state
             previousState = efsmState;
-
 
         }
     }
 
-    private void constructTransition(String line,boolean isInput,boolean isHavePredicate, EFSMState currentState,EFSMState previousState){
+    private void constructTransition(String line,boolean isInput,String predicate, EFSMState currentState,EFSMState previousState){
         EFSMTransition transition = new EFSMTransition(previousState,currentState);
         String[] splittedLine = line.split(" ");
         if(isInput){
@@ -93,13 +100,13 @@ public class EFSMBuilder {
             transition.setActionName(null);
             transition.setBlockName(splittedLine[1]);
         }
+        transition.setPredicateKey(predicate);
 
-        if (isHavePredicate){
-            transition.setPredicateKey(splittedLine[4]);
-        } else {
-            transition.setPredicateKey(null);
-        }
         transitionsSet.add(transition);
+    }
+
+    private void constructState(){
+
     }
 
     public static void main(String[] args) throws IOException {
