@@ -28,6 +28,8 @@ public class EFSMBuilder {
     private Set<String> predicatesSet;
     private Set<EFSMTransition> transitionsSet;
 
+    FSMStateMachine finiteStateMachine;
+
     private void initializeEFSM(){
         stateSet = new LinkedHashSet<>();
         inputSet = new LinkedHashSet<>();
@@ -38,12 +40,14 @@ public class EFSMBuilder {
         //Precondition for every use case
         predicatesSet.add("cond0");
         //stateSet.add(new EFSMState("Start_State"));
+
+        //Initialize
+        FSMConcept concept = new DefaultFSMConcept();
+        finiteStateMachine = new DefaultFSMStateMachine(concept);
     }
 
     private  void setupEFSM(File file) throws IOException {
         initializeEFSM();
-        FSMConcept concept = new DefaultFSMConcept();
-        FSMStateMachine finiteStateMachine = new DefaultFSMStateMachine(concept);
 
         Path path = Paths.get(file.getPath());
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
@@ -51,6 +55,7 @@ public class EFSMBuilder {
         EFSMState previousState = null;
         String getPredicate = null;
         int sequenceChar = 65;
+
         //COMPLETED(1) : read every line and get state of the efsm
         for(int i = 0; i < lines.size(); i++){
             if (i == 0){
@@ -60,15 +65,15 @@ public class EFSMBuilder {
             } else {
                 getPredicate = lines.get(i).split(" ")[4];
 
-                if (!getPredicate.equals("null"))
+                if (!getPredicate.equals("null") )
                     getPredicate =  getPredicate.substring(0,getPredicate.length()-1);
+                else
+                    getPredicate = null;
             }
 
             // Use the alphabet to name a state
             char stateName = (char) sequenceChar;
-            EFSMState efsmState = new EFSMState(String.valueOf(stateName));
-            stateSet.add(efsmState);
-            finiteStateMachine.addState(efsmState);
+            EFSMState efsmState = constructState(stateName);
             sequenceChar++;
 
             //Input set and Output set
@@ -82,11 +87,11 @@ public class EFSMBuilder {
             //Predicate set
             predicatesSet.add(getPredicate);
 
+            //Transition set
             constructTransition(lines.get(i),isInput,getPredicate,efsmState,previousState);
 
             //Get the previous state
             previousState = efsmState;
-
         }
     }
 
@@ -95,9 +100,9 @@ public class EFSMBuilder {
         String[] splittedLine = line.split(" ");
         if(isInput){
             transition.setActionName(splittedLine[1]);
-            transition.setBlockName(null);
+            //transition.setBlockName(null);
         } else {
-            transition.setActionName(null);
+            //transition.setActionName(null);
             transition.setBlockName(splittedLine[1]);
         }
         transition.setPredicateKey(predicate);
@@ -105,8 +110,13 @@ public class EFSMBuilder {
         transitionsSet.add(transition);
     }
 
-    private void constructState(){
+    private EFSMState constructState(char stateName){
+        //COMPLETED (2) : separate the construct state logic to this method
+        EFSMState efsmState = new EFSMState(String.valueOf(stateName));
+        stateSet.add(efsmState);
+        finiteStateMachine.addState(efsmState);
 
+        return efsmState;
     }
 
     public static void main(String[] args) throws IOException {
