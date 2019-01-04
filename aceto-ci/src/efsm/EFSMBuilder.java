@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Created by Intellij IDEA
@@ -117,6 +118,11 @@ public class EFSMBuilder {
         finiteStateMachine.addState(efsmState);
 
         return efsmState;
+    }
+
+    private void checkExtension(){
+        String getNumberLetterFormat = "\\d[a-zA-Z](\\d)"; // Get the number letter number format in variation and extension
+        Pattern pattern = Pattern.compile(getNumberLetterFormat);
     }
 
     public static void main(String[] args) throws IOException {
