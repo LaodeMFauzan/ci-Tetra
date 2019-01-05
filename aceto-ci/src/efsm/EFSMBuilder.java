@@ -12,9 +12,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -29,7 +31,13 @@ public class EFSMBuilder {
     private Set<String> predicatesSet;
     private Set<EFSMTransition> transitionsSet;
 
+    private HashMap<String,String> brachMap;
+
     FSMStateMachine finiteStateMachine;
+
+    public EFSMBuilder() {
+        initializeEFSM();
+    }
 
     private void initializeEFSM(){
         stateSet = new LinkedHashSet<>();
@@ -37,6 +45,7 @@ public class EFSMBuilder {
         outputSet = new LinkedHashSet<>();
         predicatesSet = new LinkedHashSet<>();
         transitionsSet = new LinkedHashSet<>();
+        brachMap = new HashMap<>();
 
         //Precondition for every use case
         predicatesSet.add("cond0");
@@ -48,8 +57,7 @@ public class EFSMBuilder {
     }
 
     private  void setupEFSM(File file) throws IOException {
-        initializeEFSM();
-
+        getBranch(file);
         Path path = Paths.get(file.getPath());
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
 
@@ -72,6 +80,11 @@ public class EFSMBuilder {
                     getPredicate = null;
             }
 
+            //Key to lookup for branch
+            String keyBranch = lines.get(i).split(" ")[0];
+            if(brachMap.get(keyBranch) != null){
+                System.out.println("There is a fking branch!!!");
+            }
             // Use the alphabet to name a state
             char stateName = (char) sequenceChar;
             EFSMState efsmState = constructState(stateName);
@@ -120,9 +133,23 @@ public class EFSMBuilder {
         return efsmState;
     }
 
-    private void checkExtension(){
+    private void getBranch(File file) throws IOException {
         String getNumberLetterFormat = "\\d[a-zA-Z](\\d)"; // Get the number letter number format in variation and extension
         Pattern pattern = Pattern.compile(getNumberLetterFormat);
+
+        Path path = Paths.get(file.getPath());
+        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+
+        for(int i = 0; i < lines.size(); i++){
+            Matcher matcher = pattern.matcher(lines.get(i));
+            if(matcher.find()){
+                String key = lines.get(i).split(" ")[0];
+                String value = lines.get(i).split(" ")[0].split("")[0];
+
+                //TODO(3) : store the extension and variation
+                brachMap.put(key,value);
+            }
+        }
     }
 
     public static void main(String[] args) throws IOException {
@@ -130,6 +157,5 @@ public class EFSMBuilder {
         File activityTableText = new File("out/activity-table.txt");
 
         builder.setupEFSM(activityTableText);
-
     }
 }
