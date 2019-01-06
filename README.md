@@ -1,7 +1,6 @@
 # ci-accetor
 Command line based test case generator. The test case was generated from a use case. The format of the use case is [cockburn's use case format](http://faculty.washington.edu/jtenenbg/courses/360/f02/project/usecaseguidelines.html).
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
