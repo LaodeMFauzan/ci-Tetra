@@ -80,15 +80,20 @@ public class EFSMBuilder {
                     getPredicate = null;
             }
 
-            //Key to lookup for branch
-            String keyBranch = lines.get(i).split(" ")[0];
-            if(brachMap.get(keyBranch) != null){
-                System.out.println("There is a fking branch!!!");
-            }
             // Use the alphabet to name a state
             char stateName = (char) sequenceChar;
             EFSMState efsmState = constructState(stateName);
             sequenceChar++;
+
+
+            //Key to lookup for branch
+            String index = lines.get(i).split(" ")[0];
+            if(brachMap.get(index) != null){
+                if(brachMap.get(index).split(" ")[0].split("")[0].equals(String.valueOf(i+1))){
+                    System.out.println("tes");
+                }
+            }
+            //TODO(4) : do branching ?
 
             //Input set and Output set
             boolean isInput =  lines.get(i).split(" ")[3].equalsIgnoreCase("System");
@@ -144,9 +149,8 @@ public class EFSMBuilder {
             Matcher matcher = pattern.matcher(lines.get(i));
             if(matcher.find()){
                 String key = lines.get(i).split(" ")[0];
-                String value = lines.get(i).split(" ")[0].split("")[0];
-
-                //TODO(3) : store the extension and variation
+                String value = lines.get(i);
+                //COMPLETED(3) : store the extension and variation
                 brachMap.put(key,value);
             }
         }
