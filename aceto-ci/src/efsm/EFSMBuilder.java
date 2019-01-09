@@ -35,6 +35,8 @@ public class EFSMBuilder {
 
     FSMStateMachine finiteStateMachine;
 
+    int sequenceChar = 65;
+
     public EFSMBuilder() {
         initializeEFSM();
     }
@@ -63,7 +65,7 @@ public class EFSMBuilder {
 
         EFSMState previousState = null;
         String getPredicate = null;
-        int sequenceChar = 65;
+
         boolean isHaveBranch = false;
 
         //COMPLETED(1) : read every line and get state of the efsm
@@ -105,7 +107,7 @@ public class EFSMBuilder {
             //Key to lookup for branch
             String indexExtension = lines.get(i).split(" ")[0]+"a1";
             if(branchMap.get(indexExtension) != null ){
-                createBranch(indexExtension,getPredicate,previousState);
+                createBranch(indexExtension,isInput,getPredicate,previousState);
             }
 
             //Transition set
@@ -169,28 +171,42 @@ public class EFSMBuilder {
         }
     }
 
-    private void createBranch(String indexExtension,String predicate,EFSMState previousState){
+    private void createBranch(String indexExtension,boolean isInput,String predicate,EFSMState previousState){
         boolean loopExtension = true;
         int indexNum = 1;
-        int sequenceChar = 97;
-        char stateName = (char) sequenceChar;
+        int sequenceCharBranch = 97;
+        char stateAlphabetIndex = (char) sequenceCharBranch;
+
+        int notFound = 0;
 
         while(loopExtension){
+            // 2a1 - 2a(n)
             if(branchMap.get(indexExtension) != null){
-                String activity = branchMap.get(indexExtension).split(" ")[1];
-                //TODO (5) construct transition here
-
+                char branchStateName = (char) sequenceChar;
                 sequenceChar++;
+                EFSMState branchState = constructState(branchStateName);
+
+                //TODO (5) construct transition here
+                constructTransition(branchMap.get(indexExtension),isInput,predicate,branchState,previousState);
+
                 indexNum++;
-                indexExtension = indexExtension.split("")[0]+stateName+indexNum;
-            } else {
-                loopExtension = false;
+                indexExtension = indexExtension.split("")[0]+stateAlphabetIndex+indexNum;
+                if(notFound != 0)
+                    notFound--;
+                continue;
+            }
+            sequenceCharBranch++;
+            indexNum = 1;
+            stateAlphabetIndex = (char) sequenceCharBranch;
+            indexExtension = indexExtension.split("")[0]+stateAlphabetIndex+indexNum;
+            notFound++;
+
+            if(notFound == 2) {
+                break;
             }
         }
-        boolean loopVariation = true;
-        while (loopVariation){
 
-        }
+        //TODO (6) : abort state is only one state
     }
 
     public static void main(String[] args) throws IOException {
