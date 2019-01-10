@@ -32,6 +32,7 @@ public class EFSMBuilder {
     private Set<EFSMTransition> transitionsSet;
 
     private HashMap<String,String> branchMap;
+    private HashMap<String,EFSMState> branchStateMap;
 
     FSMStateMachine finiteStateMachine;
 
@@ -48,6 +49,7 @@ public class EFSMBuilder {
         predicatesSet = new LinkedHashSet<>();
         transitionsSet = new LinkedHashSet<>();
         branchMap = new HashMap<>();
+        branchStateMap = new HashMap<>();
 
         //Precondition for every use case
         predicatesSet.add("cond0");
@@ -103,11 +105,11 @@ public class EFSMBuilder {
             //Input set and Output set
             boolean isInput =  isHaveInput(lines.get(i));
 
-            //TODO(4) : do branching ?
+            //COMPLETED(4) : do branching ?
             //Key to lookup for branch
             String indexExtension = lines.get(i).split(" ")[0]+"a1";
             if(branchMap.get(indexExtension) != null ){
-                createBranch(indexExtension,isInput,getPredicate,previousState);
+                createBranch(indexExtension,isInput,previousState);
             }
 
             //Transition set
@@ -171,7 +173,7 @@ public class EFSMBuilder {
         }
     }
 
-    private void createBranch(String indexExtension,boolean isInput,String predicate,EFSMState previousState){
+    private void createBranch(String indexExtension,boolean isInput,EFSMState previousState){
         boolean loopExtension = true;
         int indexNum = 1;
         int sequenceCharBranch = 97;
@@ -182,12 +184,24 @@ public class EFSMBuilder {
         while(loopExtension){
             // 2a1 - 2a(n)
             if(branchMap.get(indexExtension) != null){
-                char branchStateName = (char) sequenceChar;
-                sequenceChar++;
-                EFSMState branchState = constructState(branchStateName);
+                String keyState = branchMap.get(indexExtension).split(" ")[1];
+                EFSMState tempState = branchStateMap.get(keyState);
+                EFSMState state;
+                String predicate = branchMap.get(indexExtension).split(" ")[4];
+                predicate = predicate.substring(0,predicate.length()-1);
 
-                //TODO (5) construct transition here
-                constructTransition(branchMap.get(indexExtension),isInput,predicate,branchState,previousState);
+                //COMPLETED (6) : abort state is only one state
+                if(tempState != null){
+                    state = branchStateMap.get(keyState);
+                } else {
+                    char branchStateName = (char) sequenceChar;
+                    sequenceChar++;
+                    state = constructState(branchStateName);
+                    branchStateMap.put(keyState,state);
+                }
+
+                //COMPLETED (5) construct branch transition here
+                constructTransition(branchMap.get(indexExtension),isInput,predicate,state,previousState);
 
                 indexNum++;
                 indexExtension = indexExtension.split("")[0]+stateAlphabetIndex+indexNum;
@@ -201,12 +215,10 @@ public class EFSMBuilder {
             indexExtension = indexExtension.split("")[0]+stateAlphabetIndex+indexNum;
             notFound++;
 
-            if(notFound == 2) {
+            if(notFound > 1) {
                 break;
             }
         }
-
-        //TODO (6) : abort state is only one state
     }
 
     public static void main(String[] args) throws IOException {
