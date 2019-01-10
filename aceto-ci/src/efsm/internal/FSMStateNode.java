@@ -25,11 +25,11 @@ public class FSMStateNode {
     }
 
     boolean addOutgoingEdge(FSMTransitionEdge fsmTransitionEdge){
-        for (FSMTransitionEdge outGoingTransitionEdge : outgoingTransitionEdges){
-            if (outGoingTransitionEdge.matchesTriggerEventClass(fsmTransitionEdge)){
-                throw new IllegalArgumentException("Transition with this event type already exist");
-            }
-        }
+//        for (FSMTransitionEdge outGoingTransitionEdge : outgoingTransitionEdges){
+//            if (outGoingTransitionEdge.matchesTriggerEventClass(fsmTransitionEdge)){
+//                throw new IllegalArgumentException("Transition with this event type already exist");
+//            }
+//        }
         return outgoingTransitionEdges.add(fsmTransitionEdge);
     }
 

@@ -34,7 +34,8 @@ public class EFSMBuilder {
     private HashMap<String,String> branchMap;
     private HashMap<String,EFSMState> branchStateMap;
 
-    FSMStateMachine finiteStateMachine;
+    private FSMStateMachine finiteStateMachine;
+    private FSMConcept concept;
 
     int sequenceChar = 65;
 
@@ -56,7 +57,7 @@ public class EFSMBuilder {
         //stateSet.add(new EFSMState("Start_State"));
 
         //Initialize
-        FSMConcept concept = new DefaultFSMConcept();
+        concept = new DefaultFSMConcept();
         finiteStateMachine = new DefaultFSMStateMachine(concept);
     }
 
@@ -67,8 +68,6 @@ public class EFSMBuilder {
 
         EFSMState previousState = null;
         String getPredicate = null;
-
-        boolean isHaveBranch = false;
 
         //COMPLETED(1) : read every line and get state of the efsm
         for(int i = 0; i < lines.size(); i++){
@@ -83,6 +82,7 @@ public class EFSMBuilder {
             if (i == 0){
                 // get the start state -- think about it
                 previousState = new EFSMState("Start_State");
+                finiteStateMachine.addState(previousState);
                 getPredicate = "cond0";
             } else {
                 getPredicate = lines.get(i).split(" ")[4];
@@ -118,6 +118,7 @@ public class EFSMBuilder {
             //Get the previous state
             previousState = efsmState;
         }
+        concept.attachStateMachine(finiteStateMachine);
     }
 
     private boolean isHaveInput(String line){
@@ -143,6 +144,8 @@ public class EFSMBuilder {
         transition.setPredicateKey(predicate);
 
         transitionsSet.add(transition);
+
+        finiteStateMachine.addOutGoingTransition(transition);
     }
 
     private EFSMState constructState(char stateName){

@@ -1,5 +1,7 @@
 package efsm.model;
 
+import efsm.FSMStateMachine;
+
 /**
  * Created by Intellij IDEA
  * User : fauzan
@@ -14,4 +16,5 @@ public interface FSMConcept {
 
     void addProperty(String name,Object value);
 
+    public void attachStateMachine(FSMStateMachine stateMachine);
 }

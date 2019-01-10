@@ -30,13 +30,13 @@ public class DefaultFSMStateMachine implements FSMStateMachine,FSMEventListener{
     }
 
     void initialize(){
-        FSMStartState startState = new FSMStartState();
-        FSMEndState endState = new FSMEndState();
+//        FSMStartState startState = new FSMStartState();
+//        FSMEndState endState = new FSMEndState();
         stateGraph = new FSMStateGraph();
-        stateGraph.addState(startState);
-        stateGraph.addState(endState);
-
-        currentState = startState;
+//        stateGraph.addState(startState);
+//        stateGraph.addState(endState);
+//
+//        currentState = startState;
 
         FSMEventRegistry.INSTANCE.addEventListener(this);
     }
