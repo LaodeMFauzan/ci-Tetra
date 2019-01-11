@@ -1,5 +1,6 @@
 package efsm;
 
+import efsm.internal.FSMStateGraph;
 import efsm.model.FSMState;
 import efsm.model.FSMTransition;
 import efsm.model.impl.FSMEndState;
@@ -26,4 +27,6 @@ public interface FSMStateMachine {
     <T extends FSMTransition> FSMStateMachine addOutGoingTransitions(T... transitions);
 
     FSMState getCurrentState();
+
+    FSMStateGraph getFsmStateGraph();
 }

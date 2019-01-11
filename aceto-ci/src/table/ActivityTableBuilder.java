@@ -1,3 +1,5 @@
+package table;
+
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.SentenceUtils;
@@ -68,7 +70,7 @@ public class ActivityTableBuilder {
         int countACond = 1;
         int linesScanned = 5;
 
-        //TODO: Change this loop to while
+        //COMPLETED: Change this loop to while
         while(linesScanned < lines.size()){
             if(lines.get(linesScanned).contains("Main") ){
                 isMainScenario = true;
@@ -198,25 +200,30 @@ public class ActivityTableBuilder {
         }
     }
 
-    private static void printToText(File input) throws Exception {
-        MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
-        TokenizerFactory<CoreLabel> ptbTokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(),("untokenizable=noneKeep"));
-        File taggedInput = processedByParser(input.getPath(),ptbTokenizerFactory,tagger);
-        ArrayList<String> hasil = new ArrayList<>();
+    public static void printToText(File input) {
+        try{
+            MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
+            TokenizerFactory<CoreLabel> ptbTokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(),("untokenizable=noneKeep"));
+            File taggedInput = processedByParser(input.getPath(),ptbTokenizerFactory,tagger);
+            ArrayList<String> hasil = new ArrayList<>();
 
-        /* Do we really need to construct the header table ? */
-        String[] headerTable = getHeaderTable(input);
-        //hasil.addAll(Arrays.asList(headerTable));
+            /* Do we really need to construct the header table ? */
+            String[] headerTable = getHeaderTable(input);
+            //hasil.addAll(Arrays.asList(headerTable));
 
-        getACondition(input);
-        hasil.addAll(getActivityTable(taggedInput));
+            getACondition(input);
+            hasil.addAll(getActivityTable(taggedInput));
 
-        PrintWriter writer = new PrintWriter("out/activity-table.txt", "UTF-8");
-        for (String print:hasil){
-            writer.println(print);
-            System.out.println(print);
+            PrintWriter writer = new PrintWriter("out/activity-table.txt", "UTF-8");
+            for (String print:hasil){
+                writer.println(print);
+                //System.out.println(print);
+            }
+            writer.close();
+        } catch (Exception e){
+            e.printStackTrace();
         }
-        writer.close();
+
     }
 
     public static void main(String[] args) throws Exception {

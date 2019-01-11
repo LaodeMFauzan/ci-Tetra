@@ -109,4 +109,9 @@ public class DefaultFSMStateMachine implements FSMStateMachine,FSMEventListener{
     public FSMState getCurrentState() {
         return currentState;
     }
+
+    @Override
+    public FSMStateGraph getFsmStateGraph() {
+        return this.stateGraph;
+    }
 }

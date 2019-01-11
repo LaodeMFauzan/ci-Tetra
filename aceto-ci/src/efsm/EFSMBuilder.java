@@ -5,6 +5,7 @@ import efsm.model.FSMState;
 import efsm.model.extension.EFSMState;
 import efsm.model.extension.EFSMTransition;
 import efsm.model.impl.DefaultFSMConcept;
+import table.ActivityTableBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +29,9 @@ import java.util.regex.Pattern;
 public class EFSMBuilder {
     private Set<String> inputSet,outputSet;
     private Set<FSMState> stateSet;
-    private Set<String> predicatesSet;
     private Set<EFSMTransition> transitionsSet;
 
+    private HashMap<String,String> predicatesMap;
     private HashMap<String,String> branchMap;
     private HashMap<String,EFSMState> branchStateMap;
 
@@ -39,21 +40,35 @@ public class EFSMBuilder {
 
     int sequenceChar = 65;
 
+
+
     public EFSMBuilder() {
         initializeEFSM();
+        try {
+            setupEFSM(new File("out/activity-table.txt"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public FSMStateMachine getFiniteStateMachine() {
+        return finiteStateMachine;
     }
 
     private void initializeEFSM(){
+        ActivityTableBuilder.printToText(new File("data/sample-uc.txt"));
+
         stateSet = new LinkedHashSet<>();
         inputSet = new LinkedHashSet<>();
         outputSet = new LinkedHashSet<>();
-        predicatesSet = new LinkedHashSet<>();
         transitionsSet = new LinkedHashSet<>();
+
+        predicatesMap = new HashMap<>();
         branchMap = new HashMap<>();
         branchStateMap = new HashMap<>();
 
         //Precondition for every use case
-        predicatesSet.add("cond0");
+        //predicatesSet.add("cond0");
         //stateSet.add(new EFSMState("Start_State"));
 
         //Initialize
@@ -62,20 +77,24 @@ public class EFSMBuilder {
     }
 
     private  void setupEFSM(File file) throws IOException {
-        getBranch(file);
         Path path = Paths.get(file.getPath());
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+
+        String getNumberLetterFormat = "\\d[a-zA-Z](\\d)";
+        Pattern pattern = Pattern.compile(getNumberLetterFormat);
+
+        getBranch(lines,pattern);
 
         EFSMState previousState = null;
         String getPredicate = null;
 
         //COMPLETED(1) : read every line and get state of the efsm
         for(int i = 0; i < lines.size(); i++){
-            String getNumberLetterFormat = "\\d[a-zA-Z](\\d)";
-            Pattern pattern = Pattern.compile(getNumberLetterFormat);
+
             Matcher matcher = pattern.matcher(lines.get(i));
 
             if(matcher.find()){
+                getAllPredicate(i,lines);
                 break;
             }
 
@@ -95,7 +114,7 @@ public class EFSMBuilder {
                     getPredicate = null;
             }
             //Predicate set
-            predicatesSet.add(getPredicate);
+            //predicatesSet.put(getPredicate);
 
             // Use the alphabet to name a state
             char stateName = (char) sequenceChar;
@@ -105,20 +124,30 @@ public class EFSMBuilder {
             //Input set and Output set
             boolean isInput =  isHaveInput(lines.get(i));
 
+            //Transition set
+            constructTransition(lines.get(i),isInput,getPredicate,efsmState,previousState);
+
+            //Get the previous state
+            previousState = efsmState;
+
             //COMPLETED(4) : do branching ?
             //Key to lookup for branch
             String indexExtension = lines.get(i).split(" ")[0]+"a1";
             if(branchMap.get(indexExtension) != null ){
                 createBranch(indexExtension,isInput,previousState);
             }
-
-            //Transition set
-            constructTransition(lines.get(i),isInput,getPredicate,efsmState,previousState);
-
-            //Get the previous state
-            previousState = efsmState;
         }
         concept.attachStateMachine(finiteStateMachine);
+    }
+
+    private void getAllPredicate(int index,List<String> lines) throws IOException {
+        predicatesMap.put("cond0",ActivityTableBuilder.aCondition.get(0));
+        for(int i = index; i<lines.size(); i++){
+            String keyPredicate = lines.get(i).split(" ")[4];
+            keyPredicate = keyPredicate.substring(0,keyPredicate.length()-1);
+            String valuePredicateMap = lines.get(i).split("/")[1];
+            predicatesMap.put(keyPredicate,valuePredicateMap);
+        }
     }
 
     private boolean isHaveInput(String line){
@@ -157,14 +186,8 @@ public class EFSMBuilder {
         return efsmState;
     }
 
-    private void getBranch(File file) throws IOException {
+    private void getBranch(List<String> lines,Pattern pattern) {
         // Get the number letter number format(ex : 2a1) in variation and extension
-        String getNumberLetterFormat = "\\d[a-zA-Z](\\d)";
-        Pattern pattern = Pattern.compile(getNumberLetterFormat);
-
-        Path path = Paths.get(file.getPath());
-        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-
         for(int i = 0; i < lines.size(); i++){
             Matcher matcher = pattern.matcher(lines.get(i));
             if(matcher.find()){
@@ -227,7 +250,5 @@ public class EFSMBuilder {
     public static void main(String[] args) throws IOException {
         EFSMBuilder builder = new EFSMBuilder();
         File activityTableText = new File("out/activity-table.txt");
-
-        builder.setupEFSM(activityTableText);
     }
 }
