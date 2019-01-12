@@ -39,16 +39,11 @@ public class EFSMBuilder {
     private FSMConcept concept;
 
     int sequenceChar = 65;
-
-
+    ActivityTableBuilder tableBuilder;
 
     public EFSMBuilder() {
+        tableBuilder = new ActivityTableBuilder();
         initializeEFSM();
-        try {
-            setupEFSM(new File("out/activity-table.txt"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public FSMStateMachine getFiniteStateMachine() {
@@ -56,8 +51,6 @@ public class EFSMBuilder {
     }
 
     private void initializeEFSM(){
-        ActivityTableBuilder.printToText(new File("data/sample-uc.txt"));
-
         stateSet = new LinkedHashSet<>();
         inputSet = new LinkedHashSet<>();
         outputSet = new LinkedHashSet<>();
@@ -74,74 +67,80 @@ public class EFSMBuilder {
         //Initialize
         concept = new DefaultFSMConcept();
         finiteStateMachine = new DefaultFSMStateMachine(concept);
+        setupEFSM(new File("out/activity-table.txt"));
     }
 
-    private  void setupEFSM(File file) throws IOException {
-        Path path = Paths.get(file.getPath());
-        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+    private  void setupEFSM(File file) {
+        try{
+            Path path = Paths.get(file.getPath());
+            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
 
-        String getNumberLetterFormat = "\\d[a-zA-Z](\\d)";
-        Pattern pattern = Pattern.compile(getNumberLetterFormat);
+            String getNumberLetterFormat = "\\d[a-zA-Z](\\d)";
+            Pattern pattern = Pattern.compile(getNumberLetterFormat);
 
-        getBranch(lines,pattern);
+            getBranch(lines,pattern);
 
-        EFSMState previousState = null;
-        String getPredicate = null;
+            EFSMState previousState = null;
+            String getPredicate = null;
 
-        //COMPLETED(1) : read every line and get state of the efsm
-        for(int i = 0; i < lines.size(); i++){
+            //COMPLETED(1) : read every line and get state of the efsm
+            for(int i = 0; i < lines.size(); i++){
 
-            Matcher matcher = pattern.matcher(lines.get(i));
+                Matcher matcher = pattern.matcher(lines.get(i));
 
-            if(matcher.find()){
-                getAllPredicate(i,lines);
-                break;
-            }
-
-            if (i == 0){
-                // get the start state -- think about it
-                previousState = new EFSMState("Start_State");
-                finiteStateMachine.addState(previousState);
-                getPredicate = "cond0";
-            } else {
-                getPredicate = lines.get(i).split(" ")[4];
-
-                if (!getPredicate.equals("null") ) {
-                    getPredicate = getPredicate.substring(0, getPredicate.length() - 1);
-
+                if(matcher.find()){
+                    getAllPredicate(i,lines);
+                    break;
                 }
-                else
-                    getPredicate = null;
+
+                if (i == 0){
+                    // get the start state -- think about it
+                    previousState = new EFSMState("Start_State");
+                    finiteStateMachine.addState(previousState);
+                    getPredicate = "cond0";
+                } else {
+                    getPredicate = lines.get(i).split(" ")[4];
+
+                    if (!getPredicate.equals("null") ) {
+                        getPredicate = getPredicate.substring(0, getPredicate.length() - 1);
+
+                    }
+                    else
+                        getPredicate = null;
+                }
+                //Predicate set
+                //predicatesSet.put(getPredicate);
+
+                // Use the alphabet to name a state
+                char stateName = (char) sequenceChar;
+                EFSMState efsmState = constructState(stateName);
+                sequenceChar++;
+
+                //Input set and Output set
+                boolean isInput =  isHaveInput(lines.get(i));
+
+                //Transition set
+                constructTransition(lines.get(i),isInput,getPredicate,efsmState,previousState);
+
+                //Get the previous state
+                previousState = efsmState;
+
+                //COMPLETED(4) : do branching ?
+                //Key to lookup for branch
+                String indexExtension = lines.get(i).split(" ")[0]+"a1";
+                if(branchMap.get(indexExtension) != null ){
+                    createBranch(indexExtension,isInput,previousState);
+                }
             }
-            //Predicate set
-            //predicatesSet.put(getPredicate);
-
-            // Use the alphabet to name a state
-            char stateName = (char) sequenceChar;
-            EFSMState efsmState = constructState(stateName);
-            sequenceChar++;
-
-            //Input set and Output set
-            boolean isInput =  isHaveInput(lines.get(i));
-
-            //Transition set
-            constructTransition(lines.get(i),isInput,getPredicate,efsmState,previousState);
-
-            //Get the previous state
-            previousState = efsmState;
-
-            //COMPLETED(4) : do branching ?
-            //Key to lookup for branch
-            String indexExtension = lines.get(i).split(" ")[0]+"a1";
-            if(branchMap.get(indexExtension) != null ){
-                createBranch(indexExtension,isInput,previousState);
-            }
+            concept.attachStateMachine(finiteStateMachine);
+        } catch (IOException e){
+            e.printStackTrace();
         }
-        concept.attachStateMachine(finiteStateMachine);
+
     }
 
     private void getAllPredicate(int index,List<String> lines) throws IOException {
-        predicatesMap.put("cond0",ActivityTableBuilder.aCondition.get(0));
+        predicatesMap.put("cond0",tableBuilder.aCondition.get(0));
         for(int i = index; i<lines.size(); i++){
             String keyPredicate = lines.get(i).split(" ")[4];
             keyPredicate = keyPredicate.substring(0,keyPredicate.length()-1);

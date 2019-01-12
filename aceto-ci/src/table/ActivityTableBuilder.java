@@ -22,9 +22,14 @@ import java.util.regex.Pattern;
 
 public class ActivityTableBuilder {
 
-    public static ArrayList<String> aCondition = new ArrayList<>();
+    public  ArrayList<String> aCondition = new ArrayList<>();
 
-    public static File processedByParser(String fileName,TokenizerFactory<CoreLabel> ptbTokenizerFactory,MaxentTagger tagger) throws Exception {
+    public ActivityTableBuilder() {
+        //this.printToText(new File("data/sample-uc.txt")); // Comment this line to fasten the compiling process
+        getACondition(new File("data/sample-uc.txt"));
+    }
+
+    public  File processedByParser(String fileName, TokenizerFactory<CoreLabel> ptbTokenizerFactory, MaxentTagger tagger) throws Exception {
         File output = new File("out/tagged-uc.txt");
         PrintStream ps = new PrintStream(output);
 
@@ -45,7 +50,7 @@ public class ActivityTableBuilder {
         return output;
     }
 
-    private static String[] getHeaderTable(File file) throws IOException {
+    private  String[] getHeaderTable(File file) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(file));
         String[] headerTable = new String[5]; // header table contains 5 field
 
@@ -60,7 +65,7 @@ public class ActivityTableBuilder {
         return headerTable;
     }
 
-    public static ArrayList<String> getActivityTable(File file) throws IOException {
+    public  ArrayList<String> getActivityTable(File file) throws IOException {
         Path path = Paths.get(file.getPath());
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
         ArrayList<String> hasil = new ArrayList<>();
@@ -118,7 +123,7 @@ public class ActivityTableBuilder {
         return hasil;
     }
 
-    private static String getNumber(int i,String line,boolean isMainScenario){
+    private  String getNumber(int i,String line,boolean isMainScenario){
         if (isMainScenario){
             int hasil = i-5;
             return String.valueOf(hasil);
@@ -128,7 +133,7 @@ public class ActivityTableBuilder {
         }
     }
 
-   private static String getVBZ(String line){
+   private  String getVBZ(String line){
         String[] result = line.split(" ");
         for (int i = 0; i < result.length; i++){
             if (result[i].contains("/VBZ")){
@@ -138,7 +143,7 @@ public class ActivityTableBuilder {
         return null;
    }
 
-    private static String getNN(String line){
+    private  String getNN(String line){
         String[] result = line.split(" ");
         boolean isGetVerb = false;
         for(int i = 0; i < result.length; i++){
@@ -152,12 +157,12 @@ public class ActivityTableBuilder {
         return null;
     }
 
-    private static String getSender(String line){
+    private  String getSender(String line){
         String[] result = line.split(" ");
         return result[1].split("/")[0];
     }
 
-    private static String getReceiver(String line){
+    private  String getReceiver(String line){
         String[] result = line.split(" ");
         int countNNP = 0;
         for (int i = 2; i < result.length; i++){ // first and second word are always number and sender,so we go to 3rd word
@@ -175,44 +180,47 @@ public class ActivityTableBuilder {
         return null;
     }
 
-    private static void getACondition(File file) throws IOException {
-        Path path = Paths.get(file.getPath());
-        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-        boolean isExtOrVar = false;
-        int countACond = 1;
-        for(int i = 5; i < lines.size(); i++){
-            if (lines.get(i).contains("Extensions")){
-                isExtOrVar = true;
-            } else if(isExtOrVar){
-                String getNumberLetterFormat = "\\d[a-zA-Z]"; // Get the number letter format in variation and extension
-                Pattern pattern = Pattern.compile(getNumberLetterFormat);
-                Matcher matcher = pattern.matcher(lines.get(i));
+    private  void getACondition(File file) {
+        try{
+            Path path = Paths.get(file.getPath());
+            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+            boolean isExtOrVar = false;
+            int countACond = 1;
+            for(int i = 5; i < lines.size(); i++){
+                if (lines.get(i).contains("Extensions")){
+                    isExtOrVar = true;
+                } else if(isExtOrVar){
+                    String getNumberLetterFormat = "\\d[a-zA-Z]"; // Get the number letter format in variation and extension
+                    Pattern pattern = Pattern.compile(getNumberLetterFormat);
+                    Matcher matcher = pattern.matcher(lines.get(i));
 
-                String getNumberLetterNumberFormat = "\\d[a-zA-Z](\\d)";
-                Pattern patternCheck = Pattern.compile(getNumberLetterNumberFormat);
-                Matcher matcherCheck = patternCheck.matcher(lines.get(i));
+                    String getNumberLetterNumberFormat = "\\d[a-zA-Z](\\d)";
+                    Pattern patternCheck = Pattern.compile(getNumberLetterNumberFormat);
+                    Matcher matcherCheck = patternCheck.matcher(lines.get(i));
 
-                if(matcher.find() && !matcherCheck.find()){
-                    aCondition.add("cond"+countACond+"/"+lines.get(i).split(getNumberLetterFormat)[1]);
-                    countACond++;
+                    if(matcher.find() && !matcherCheck.find()){
+                        aCondition.add("cond"+countACond+"/"+lines.get(i).split(getNumberLetterFormat)[1]);
+                        countACond++;
+                    }
                 }
             }
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 
-    public static void printToText(File input) {
+    public void printToText(File input) {
         try{
             MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
             TokenizerFactory<CoreLabel> ptbTokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(),("untokenizable=noneKeep"));
             File taggedInput = processedByParser(input.getPath(),ptbTokenizerFactory,tagger);
-            ArrayList<String> hasil = new ArrayList<>();
 
             /* Do we really need to construct the header table ? */
             String[] headerTable = getHeaderTable(input);
             //hasil.addAll(Arrays.asList(headerTable));
 
             getACondition(input);
-            hasil.addAll(getActivityTable(taggedInput));
+            ArrayList<String> hasil = new ArrayList<>(getActivityTable(taggedInput));
 
             PrintWriter writer = new PrintWriter("out/activity-table.txt", "UTF-8");
             for (String print:hasil){
@@ -228,14 +236,14 @@ public class ActivityTableBuilder {
 
     public static void main(String[] args) throws Exception {
         File input = new File("data/sample-uc.txt");
-
+        ActivityTableBuilder builder = new ActivityTableBuilder();
 //        Path path = Paths.get(taggedInput.getPath());
 //        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
 //        for(int i = 0; i < lines.size(); i++){
 //            System.out.println(lines.get(i));
 //        }
 
-        printToText(input);
+        builder.printToText(input);
     }
 }
 
