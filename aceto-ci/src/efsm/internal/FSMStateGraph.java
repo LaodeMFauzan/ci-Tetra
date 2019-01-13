@@ -12,6 +12,10 @@ public class FSMStateGraph implements Iterable<FSMState> {
 
     private Map<String, FSMStateNode> stateNodes = new HashMap<>();
 
+    public Map<String, FSMStateNode> getStateNodes() {
+        return stateNodes;
+    }
+
     public <S extends FSMState> boolean addState(S state){
         if (stateNodes.containsKey(state.getName())){
             return false;

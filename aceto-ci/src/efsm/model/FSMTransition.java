@@ -13,4 +13,10 @@ public interface FSMTransition {
     FSMState getTo();
 
     Class<?> getTriggerEventClass();
+
+    String getActionName();
+
+    String getPredicateKey();
+
+    String getBlockName();
 }

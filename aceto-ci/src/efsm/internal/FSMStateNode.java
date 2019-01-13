@@ -37,7 +37,7 @@ public class FSMStateNode {
         return wrappedState;
     }
 
-    Collection<FSMTransitionEdge> getOutgoingEdges(){
+    public Collection<FSMTransitionEdge> getOutgoingEdges(){
         return Collections.unmodifiableCollection(outgoingTransitionEdges);
     }
 
