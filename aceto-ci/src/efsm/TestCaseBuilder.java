@@ -3,6 +3,7 @@ package efsm;
 import efsm.internal.FSMStateGraph;
 import efsm.internal.FSMStateNode;
 import efsm.internal.FSMTransitionEdge;
+import efsm.model.FSMState;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,14 +37,14 @@ public class TestCaseBuilder {
         Map<String, FSMStateNode> stateNodes = fsmStateGraph.getStateNodes();
         stateStack.push(stateNodes.get("Start_State"));
 
-
+        FSMState next = null;
         while(!stateStack.isEmpty()){
-            Collection<FSMTransitionEdge> outgoingEdges = stateStack.peek().getOutgoingEdges();
+            Collection<FSMTransitionEdge> outgoingEdges = stateStack.pop().getOutgoingEdges();
              for(FSMTransitionEdge edges : outgoingEdges){
                 System.out.println("Input Action : "+edges.getWrappedTransition().getActionName());
-                System.out.println("Output Action : "+edges.getWrappedTransition().getBlockName());
+                next = edges.getWrappedTransition().getTo();
             }
-             break;
+            stateStack.push(stateNodes.get(next.getName()));
         }
         return this.testCaseList;
     }
