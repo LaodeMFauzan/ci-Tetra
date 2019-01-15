@@ -30,23 +30,46 @@ public class TestCaseBuilder {
     }
 
     private ArrayList<String> generateTestCase(){
-        testCaseList = new ArrayList<>();
-        Stack<FSMStateNode> stateStack = new Stack<>();
-        FSMStateGraph fsmStateGraph = finiteStateMachine.getFsmStateGraph();
+        try{
+            testCaseList = new ArrayList<>();
+            Stack<FSMStateNode> stateStack = new Stack<>();
+            FSMStateGraph fsmStateGraph = finiteStateMachine.getFsmStateGraph();
 
-        Map<String, FSMStateNode> stateNodes = fsmStateGraph.getStateNodes();
-        stateStack.push(stateNodes.get("Start_State"));
+            Map<String, FSMStateNode> stateNodesMap = fsmStateGraph.getStateNodes();
+            stateStack.push(stateNodesMap.get("Start_State"));
 
-        FSMState next = null;
-        while(!stateStack.isEmpty()){
-            Collection<FSMTransitionEdge> outgoingEdges = stateStack.pop().getOutgoingEdges();
-             for(FSMTransitionEdge edges : outgoingEdges){
-                System.out.println("Input Action : "+edges.getWrappedTransition().getActionName());
-                next = edges.getWrappedTransition().getTo();
+            FSMState next = null;
+            String testCase = "Start ->";
+            while(!stateStack.isEmpty()){
+                if (stateStack.peek().getOutgoingEdges().size() == 1){
+                    for(FSMTransitionEdge edges : stateStack.pop().getOutgoingEdges()){
+                        if (edges.getWrappedTransition().getActionName() != null){
+                            testCase += edges.getWrappedTransition().getActionName()+"?->";
+                        } else {
+                            testCase += edges.getWrappedTransition().getBlockName()+"!->";
+                        }
+                        next = edges.getWrappedTransition().getTo();
+                    }
+                    stateStack.push(stateNodesMap.get(next.getName()));
+                } else if(stateStack.peek().getOutgoingEdges().size() > 1){
+                    //getBranchTestCase(stateStack,testCaseList,testCase);
+                    for(FSMTransitionEdge edges : stateStack.peek().getOutgoingEdges()){
+                        stateStack.push(stateNodesMap.get(edges.getWrappedTransition().getTo().getName()));
+                    }
+                } else {
+                    testCaseList.add(testCase);
+                    stateStack.pop();
+                }
             }
-            stateStack.push(stateNodes.get(next.getName()));
+        } catch (NullPointerException e){
+            e.printStackTrace();
         }
         return this.testCaseList;
+    }
+
+    private void getBranchTestCase(Stack<FSMStateNode> stateStack,ArrayList<String> testCaseList,String testCase) {
+        Collection<FSMTransitionEdge> outgoingEdges = stateStack.pop().getOutgoingEdges();
+
     }
 
     public static void main(String[] args) {
