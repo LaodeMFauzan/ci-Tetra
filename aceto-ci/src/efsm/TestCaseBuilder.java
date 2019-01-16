@@ -5,10 +5,7 @@ import efsm.internal.FSMStateNode;
 import efsm.internal.FSMTransitionEdge;
 import efsm.model.FSMState;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Created by Intellij IDEA
@@ -19,7 +16,7 @@ import java.util.Stack;
 public class TestCaseBuilder {
 
     private EFSMBuilder efsmObject;
-    private ArrayList<String> testCaseList;
+    private Set<String> testCaseList;
     private FSMStateMachine finiteStateMachine;
 
     public TestCaseBuilder(EFSMBuilder efsmObject) {
@@ -29,9 +26,9 @@ public class TestCaseBuilder {
         generateTestCase();
     }
 
-    private ArrayList<String> generateTestCase(){
+    private Set<String> generateTestCase(){
         try{
-            testCaseList = new ArrayList<>();
+            testCaseList = new LinkedHashSet<>();
             Stack<FSMStateNode> stateStack = new Stack<>();
             FSMStateGraph fsmStateGraph = finiteStateMachine.getFsmStateGraph();
 
@@ -40,6 +37,7 @@ public class TestCaseBuilder {
 
             FSMState next = null;
             String testCase = "Start ->";
+            String prevTestCase = testCase;
             while(!stateStack.isEmpty()){
                 if (stateStack.peek().getOutgoingEdges().size() == 1){
                     for(FSMTransitionEdge edges : stateStack.pop().getOutgoingEdges()){
@@ -50,11 +48,25 @@ public class TestCaseBuilder {
                         }
                         next = edges.getWrappedTransition().getTo();
                     }
+                    prevTestCase = testCase;
                     stateStack.push(stateNodesMap.get(next.getName()));
                 } else if(stateStack.peek().getOutgoingEdges().size() > 1){
                     //getBranchTestCase(stateStack,testCaseList,testCase);
+                    // if n-1 break loop
+                    int index = 0;
                     for(FSMTransitionEdge edges : stateStack.peek().getOutgoingEdges()){
+                        testCase = prevTestCase;
+                        index++;
                         stateStack.push(stateNodesMap.get(edges.getWrappedTransition().getTo().getName()));
+                        if (edges.getWrappedTransition().getActionName() != null){
+                            testCase += edges.getWrappedTransition().getActionName()+"?->";
+                        } else {
+                            testCase += edges.getWrappedTransition().getBlockName()+"!->";
+                        }
+                        if(index == stateStack.peek().getOutgoingEdges().size()-1){
+                            break;
+                        }
+                        testCaseList.add(testCase); // this is the problem
                     }
                 } else {
                     testCaseList.add(testCase);
