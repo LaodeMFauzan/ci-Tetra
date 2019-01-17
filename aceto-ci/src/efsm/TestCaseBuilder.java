@@ -5,7 +5,10 @@ import efsm.internal.FSMStateNode;
 import efsm.internal.FSMTransitionEdge;
 import efsm.model.FSMState;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * Created by Intellij IDEA
@@ -41,34 +44,15 @@ public class TestCaseBuilder {
             while(!stateStack.isEmpty()){
                 if (stateStack.peek().getOutgoingEdges().size() == 1){
                     for(FSMTransitionEdge edges : stateStack.pop().getOutgoingEdges()){
-                        if (edges.getWrappedTransition().getActionName() != null){
-                            testCase += edges.getWrappedTransition().getActionName()+"?->";
-                        } else {
-                            testCase += edges.getWrappedTransition().getBlockName()+"!->";
-                        }
+                      testCase = getActivityName(testCase,edges);
                         next = edges.getWrappedTransition().getTo();
                     }
                     prevTestCase = testCase;
                     stateStack.push(stateNodesMap.get(next.getName()));
                 } else if(stateStack.peek().getOutgoingEdges().size() > 1){
-                    //getBranchTestCase(stateStack,testCaseList,testCase);
-                    // if n-1 break loop
-                    int index = 0;
-                    for(FSMTransitionEdge edges : stateStack.peek().getOutgoingEdges()){
-                        testCase = prevTestCase;
-                        index++;
-                        stateStack.push(stateNodesMap.get(edges.getWrappedTransition().getTo().getName()));
-                        if (edges.getWrappedTransition().getActionName() != null){
-                            testCase += edges.getWrappedTransition().getActionName()+"?->";
-                        } else {
-                            testCase += edges.getWrappedTransition().getBlockName()+"!->";
-                        }
-                        if(index == stateStack.peek().getOutgoingEdges().size()-1){
-                            break;
-                        }
-                        testCaseList.add(testCase); // this is the problem
-                    }
+                    testCase = getBranchTestCase(stateNodesMap,stateStack,testCaseList,prevTestCase);
                 } else {
+                    testCase += " end";
                     testCaseList.add(testCase);
                     stateStack.pop();
                 }
@@ -79,14 +63,35 @@ public class TestCaseBuilder {
         return this.testCaseList;
     }
 
-    private void getBranchTestCase(Stack<FSMStateNode> stateStack,ArrayList<String> testCaseList,String testCase) {
-        Collection<FSMTransitionEdge> outgoingEdges = stateStack.pop().getOutgoingEdges();
+    private String getBranchTestCase(Map<String, FSMStateNode> stateNodesMap,Stack<FSMStateNode> stateStack,Set<String> testCaseList,String testCase) {
+        for(FSMTransitionEdge edges : stateStack.pop().getOutgoingEdges()){
+            String branchTestcase = testCase;
+            stateStack.push(stateNodesMap.get(edges.getWrappedTransition().getTo().getName()));
+            branchTestcase = getActivityName(branchTestcase,edges);
+            if(stateStack.peek().getOutgoingEdges().size() > 0){
+                return getActivityName(testCase,edges);
+            }
+            branchTestcase += " end";
+            testCaseList.add(branchTestcase);
+            stateStack.pop();
+        }
+        return null;
+    }
 
+    private String getActivityName(String testCase,FSMTransitionEdge edges){
+        if (edges.getWrappedTransition().getActionName() != null){
+            testCase += edges.getWrappedTransition().getActionName()+"?->";
+        } else {
+            testCase += edges.getWrappedTransition().getBlockName()+"!->";
+        }
+        return testCase;
     }
 
     public static void main(String[] args) {
         TestCaseBuilder caseBuilder = new TestCaseBuilder(new EFSMBuilder());
-
+        for (String testCase : caseBuilder.testCaseList){
+            System.out.println(testCase);
+        }
     }
 
 }
