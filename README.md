@@ -1,4 +1,4 @@
-# ci-accetor
+# ci-Tetra
 Command line based test case generator. The test case was generated from a use case. The format of the use case is [cockburn's use case format](http://faculty.washington.edu/jtenenbg/courses/360/f02/project/usecaseguidelines.html).
 
 
